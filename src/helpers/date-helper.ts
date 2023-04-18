@@ -53,6 +53,12 @@ export const ganttDateRange = (
       newEndDate = addYears(maxTaskDate, 1);
       newEndDate = startOfYear(newEndDate);
       break;
+    case ViewMode.QuarterYear:
+      newStartDate = addToDate(newStartDate, -3, "month");
+      newStartDate = startOfDate(newStartDate, "month");
+      newEndDate = addToDate(newEndDate, 3, "year");
+      newEndDate = startOfDate(newEndDate, "year");
+      break;
     case ViewMode.Month:
       newStartDate = subMonths(minTaskDate, preStepsCount);
       newStartDate = startOfMonth(newStartDate);
@@ -90,6 +96,73 @@ export const ganttDateRange = (
       newEndDate = addDays(newEndDate, 1);
       break;
   }
+  return [newStartDate, newEndDate];
+};
+
+export const seedDates = (
+  startDate: Date,
+  endDate: Date,
+  viewMode: ViewMode
+) => {
+  let currentDate: Date = new Date(startDate);
+  const dates: Date[] = [currentDate];
+  while (currentDate < endDate) {
+    switch (viewMode) {
+      case ViewMode.Year:
+        currentDate = addToDate(currentDate, 1, "year");
+        break;
+      case ViewMode.QuarterYear:
+        currentDate = addToDate(currentDate, 3, "month");
+        break;
+      case ViewMode.Month:
+        currentDate = addToDate(currentDate, 1, "month");
+        break;
+      case ViewMode.Week:
+        currentDate = addToDate(currentDate, 7, "day");
+        break;
+      case ViewMode.Day:
+        currentDate = addToDate(currentDate, 1, "day");
+        break;
+      case ViewMode.HalfDay:
+        currentDate = addToDate(currentDate, 12, "hour");
+        break;
+      case ViewMode.QuarterDay:
+        currentDate = addToDate(currentDate, 6, "hour");
+        break;
+      case ViewMode.Hour:
+        currentDate = addToDate(currentDate, 1, "hour");
+        break;
+    }
+    dates.push(currentDate);
+  }
+  return dates;
+};
+
+export const getLocaleMonth = (date: Date, locale: string) => {
+  let bottomValue = getCachedDateTimeFormat(locale, {
+    month: "long",
+  }).format(date);
+  bottomValue = bottomValue.replace(
+    bottomValue[0],
+    bottomValue[0].toLocaleUpperCase()
+  );
+  return bottomValue;
+};
+
+export const getLocalDayOfWeek = (
+  date: Date,
+  locale: string,
+  format?: "long" | "short" | "narrow" | undefined
+) => {
+  let bottomValue = getCachedDateTimeFormat(locale, {
+    weekday: format,
+  }).format(date);
+  bottomValue = bottomValue.replace(
+    bottomValue[0],
+    bottomValue[0].toLocaleUpperCase()
+  );
+  return bottomValue;
+};
 
   return [newStartDate, minTaskDate, getDatesDiff(newEndDate, newStartDate, viewMode)];
 };
